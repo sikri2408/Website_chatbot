@@ -135,7 +135,7 @@ class VectorStoreManager:
         
         return stats_response
 
-<<<<<<< HEAD
+
 # Example usage
 if __name__ == "__main__":
     persist_directory = 'chroma_db_websites'
@@ -156,26 +156,3 @@ if __name__ == "__main__":
     
     # Print statistics
     vector_store_manager.print_collection_stats()
-=======
-## Example usage
-#if __name__ == "__main__":
-#
-#    persist_directory = 'chroma_db_websites'
-#    vector_store_manager = VectorStoreManager(persist_directory)
-#    
-#    # Example URLs to process
-#    urls = ['https://huyenchip.com/2024/07/25/genai-platform.html', 
-#             'https://lilianweng.github.io/posts/2024-07-07-hallucination/',
-#             'https://jina.ai/news/what-is-colbert-and-late-interaction-and-why-they-matter-in-search/',
-#             'https://quoraengineering.quora.com/Building-Embedding-Search-at-Quora'
-#
-#        # Add more URLs as needed
-#   ]
-#   
-#     # Process each URL
-#    for url in urls:
-#        vector_store_manager.process_url(url)
-#   
-#     # Print statistics
-#    vector_store_manager.print_collection_stats()
->>>>>>> da5001393358fcef643e9fca52e16b1dfb238c8e
