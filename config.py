@@ -1,7 +1,7 @@
 #Config --> main.py
 PERSIST_DIRECTORY = 'chroma_db_websites/'
 port_no = 8080
-host_name = "127.0.0.1"
+host_name = "0.0.0.0"
 
 #Config --> streamlit_ui.py
 CHAT_API_URL = f"http://{host_name}:{port_no}/api/v1/chat"
@@ -14,7 +14,10 @@ from dotenv import load_dotenv
 load_dotenv()
 import os
 OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY")
+<<<<<<< HEAD
 
 # API Authentication
 ADMIN_API_KEY = os.getenv("ADMIN_API_KEY")  # For managing API keys
 API_KEY_EXPIRY_DAYS = 90  # For key rotation
+=======
+>>>>>>> da5001393358fcef643e9fca52e16b1dfb238c8e
