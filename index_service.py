@@ -10,7 +10,6 @@ from config import CHUNK_SIZE, CHUNK_OVERLAP, OPENAI_API_KEY
 import warnings
 warnings.filterwarnings('ignore')
 
-
 class VectorStoreManager:
     def __init__(self, persist_directory):
         self.persist_directory = persist_directory
@@ -129,23 +128,24 @@ class VectorStoreManager:
         
         return count, len(unique_urls)
 
-# # Example usage
-# if __name__ == "__main__":
-#     persist_directory = 'chroma_db_websites'
-#     vector_store_manager = VectorStoreManager(persist_directory)
-    
-#     # Example URLs to process
-#     urls = ['https://huyenchip.com/2024/07/25/genai-platform.html', 
+## Example usage
+#if __name__ == "__main__":
+#
+#    persist_directory = 'chroma_db_websites'
+#    vector_store_manager = VectorStoreManager(persist_directory)
+#    
+#    # Example URLs to process
+#    urls = ['https://huyenchip.com/2024/07/25/genai-platform.html', 
 #             'https://lilianweng.github.io/posts/2024-07-07-hallucination/',
 #             'https://jina.ai/news/what-is-colbert-and-late-interaction-and-why-they-matter-in-search/',
 #             'https://quoraengineering.quora.com/Building-Embedding-Search-at-Quora'
-
-#         # Add more URLs as needed
-#     ]
-    
+#
+#        # Add more URLs as needed
+#   ]
+#   
 #     # Process each URL
-#     for url in urls:
-#         vector_store_manager.process_url(url)
-    
+#    for url in urls:
+#        vector_store_manager.process_url(url)
+#   
 #     # Print statistics
-#     vector_store_manager.print_collection_stats()
+#    vector_store_manager.print_collection_stats()
