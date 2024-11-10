@@ -1,0 +1,100 @@
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel, HttpUrl
+from typing import List, Optional
+from rag_service import RAGService
+from config import PERSIST_DIRECTORY, port_no, host_name
+import warnings
+warnings.filterwarnings('ignore')
+
+app = FastAPI()
+rag_service = RAGService(PERSIST_DIRECTORY)
+
+class URLInput(BaseModel):
+    url: HttpUrl
+    force_update: bool = False
+
+class URLResponse(BaseModel):
+    status: str
+    message: str
+    was_indexed: bool
+
+class ChatMessage(BaseModel):
+    role: str
+    content: str
+
+class ChatInput(BaseModel):
+    query: str
+    chat_history: Optional[List[ChatMessage]] = []
+
+class ChatResponse(BaseModel):
+    response: str
+    sources: Optional[List[str]] = None
+
+@app.post("/api/v1/index", response_model=URLResponse)
+async def index_url(url_input: URLInput):
+    """Index a new URL or update an existing one in the vector store."""
+    try:
+        url_str = str(url_input.url)
+        # First check if URL exists
+        url_exists = rag_service.url_exists(url_str)
+        
+        if url_exists and not url_input.force_update:
+            return URLResponse(
+                status="skipped",
+                message=f"URL {url_str} is already indexed. Use force_update=true to reindex.",
+                was_indexed=False
+            )
+        
+        success = rag_service.process_url(
+            url_str,
+            force_update=url_input.force_update
+        )
+        
+        if success:
+            action = "updated" if url_exists else "indexed"
+            return URLResponse(
+                status="success",
+                message=f"Successfully {action} {url_str}",
+                was_indexed=True
+            )
+        else:
+            raise HTTPException(
+                status_code=400, 
+                detail="Failed to process URL"
+            )
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/v1/chat")
+async def chat(chat_input: ChatInput):
+    """Process a chat query and return response with sources."""
+    try:
+        # Convert Pydantic ChatMessage to dict format expected by RAG service
+        chat_history = [
+            {"role": msg.role, "content": msg.content}
+            for msg in chat_input.chat_history
+        ]
+        
+        # Get response from RAG service
+        response_text, sources = rag_service.get_response(
+            chat_input.query,
+            chat_history
+        )
+        
+        return ChatResponse(response=response_text, sources=sources)
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/v1/stats")
+async def get_stats():
+    """Get statistics about the vector store collection."""
+    try:
+        return rag_service.get_collection_stats()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host=host_name, port=port_no)
