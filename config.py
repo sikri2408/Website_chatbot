@@ -10,5 +10,11 @@ CHAT_API_URL = f"http://{host_name}:{port_no}/api/v1/chat"
 CHUNK_SIZE = 1000
 CHUNK_OVERLAP = 200
 
-#KEYS
-OPENAI_API_KEY = "your_api_key"
+from dotenv import load_dotenv
+load_dotenv()
+import os
+OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY")
+
+# API Authentication
+ADMIN_API_KEY = os.getenv("ADMIN_API_KEY")  # For managing API keys
+API_KEY_EXPIRY_DAYS = 90  # For key rotation
