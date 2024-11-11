@@ -117,9 +117,6 @@ curl -X GET "https://mko0y480af.execute-api.ap-south-1.amazonaws.com/Dev/api/v1/
 </code></pre>
 
 </body>
-</html>
-
-Here's the HTML code to add to your Readme.md file:
 
 <h2>API Hosting</h2>
 
@@ -136,9 +133,12 @@ Here's the HTML code to add to your Readme.md file:
 <p>This setup provides flexibility to run and access the API locally or from the cloud, depending on your development and production needs.</p>
 
 <h2>UI Guide</h2>
-Login using 
-![Image Alt Text](Docs/Images/Img1.PNG)
+<h3>Login using creds, provided in .env file</h3>
+<img src="Docs/Images/img1.PNG" alt="Image Alt Text">
 
-![Image Alt Text](Docs/Images/Img2.PNG)
+<h3>Rag Service Tab</h3>
+<img src="Docs/Images/img2.PNG" alt="Image Alt Text">
 
-![Image Alt Text](Docs/Images/Img3.PNG)
+<h3>Indexing Tab</h3>
+<img src="Docs/Images/img3.PNG" alt="Image Alt Text">
+</html>
