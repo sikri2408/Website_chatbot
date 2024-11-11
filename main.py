@@ -33,32 +33,7 @@ class ChatResponse(BaseModel):
     response: str
     sources: Optional[List[str]] = None
 
-class CreateAPIKeyRequest(BaseModel):
-    client_id: str
-
-class CreateAPIKeyResponse(BaseModel):
-    key: str
-    client_id: str
-    created_at: datetime
-
-@app.post("/api/v1/auth/keys", response_model=CreateAPIKeyResponse)
-async def create_api_key(request: CreateAPIKeyRequest):
-    """Create a new API key for a client."""
-    api_key = auth_service.create_api_key(request.client_id)
-    return api_key
-
-@app.get("/api/v1/auth/keys")
-async def list_api_keys(client_id: Optional[str] = None, api_key: APIKey = Depends(get_api_key)):
-    """List all API keys or filter by client_id."""
-    return auth_service.list_api_keys(client_id)
-
-@app.delete("/api/v1/auth/keys/{key}")
-async def deactivate_api_key(key: str, api_key: APIKey = Depends(get_api_key)):
-    """Deactivate an API key."""
-    if auth_service.deactivate_api_key(key):
-        return {"status": "success", "message": "API key deactivated"}
-    raise HTTPException(status_code=404, detail="API key not found")
-
+ 
 # Modified existing endpoints to require authentication
 @app.post("/api/v1/index", response_model=URLResponse)
 async def index_url(url_input: URLInput, api_key: APIKey = Depends(get_api_key)):

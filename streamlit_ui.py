@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 import json
 from typing import List, Dict
-from config import CHAT_API_URL
+from config import CHAT_API_URL, API_KEY, API_CLIENT_ID
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -27,7 +27,8 @@ def format_message(role: str, content: str) -> Dict[str, str]:
     """Format message for API request"""
     return {"role": role, "content": content}
 
-def get_chat_response(query: str, chat_history: List[Dict[str, str]], api_key: str) -> tuple:
+# Update existing functions to include client_id
+def get_chat_response(query: str, chat_history: List[Dict[str, str]], api_key: str, client_id: str) -> tuple:
     """Get response from API with authentication"""
     try:
         response = requests.post(
@@ -36,40 +37,20 @@ def get_chat_response(query: str, chat_history: List[Dict[str, str]], api_key: s
                 "query": query,
                 "chat_history": chat_history
             },
-            headers={"X-API-Key": api_key}
+            headers={
+                "X-API-Key": api_key,
+                "X-Client-ID": client_id
+            }
         )
         response.raise_for_status()
         return response.json(), None
     except requests.exceptions.RequestException as e:
         if response.status_code == 403:
             st.session_state.is_authenticated = False
-            return None, "Authentication failed. Please check your API key."
+            return None, "Authentication failed. Please check your credentials."
         return None, f"Error communicating with API: {str(e)}"
 
-def create_api_key(client_id: str) -> tuple:
-    """Create new API key"""
-    try:
-        response = requests.post(
-            f"{CHAT_API_URL.rsplit('/', 1)[0]}/auth/keys",
-            json={"client_id": client_id}
-        )
-        response.raise_for_status()
-        return response.json(), None
-    except requests.exceptions.RequestException as e:
-        return None, f"Error creating API key: {str(e)}"
-
-def validate_api_key(api_key: str) -> bool:
-    """Validate API key by making a test request"""
-    try:
-        response = requests.get(
-            f"{CHAT_API_URL.rsplit('/', 1)[0]}/stats",
-            headers={"X-API-Key": api_key}
-        )
-        return response.status_code == 200
-    except:
-        return False
-
-def submit_url(url: str, force_update: bool = False, api_key: str = None) -> tuple:
+def submit_url(url: str, force_update: bool = False, api_key: str = None, client_id: str = None) -> tuple:
     """Submit URL to be indexed"""
     try:
         response = requests.post(
@@ -78,47 +59,41 @@ def submit_url(url: str, force_update: bool = False, api_key: str = None) -> tup
                 "url": url,
                 "force_update": force_update
             },
-            headers={"X-API-Key": api_key}
+            headers={
+                "X-API-Key": api_key,
+                "X-Client-ID": client_id
+            }
         )
         response.raise_for_status()
         return response.json(), None
     except requests.exceptions.RequestException as e:
         if response.status_code == 403:
             st.session_state.is_authenticated = False
-            return None, "Authentication failed. Please check your API key."
+            return None, "Authentication failed. Please check your credentials."
         return None, f"Error submitting URL: {str(e)}"
 
-# Sidebar navigation
+# Update session state initialization
+if "client_id" not in st.session_state:
+    st.session_state.client_id = None
+
+
+# Update sidebar authentication
 with st.sidebar:
     st.title("🔐 Authentication")
     
     if not st.session_state.is_authenticated:
-        auth_tab1, auth_tab2 = st.tabs(["Use Existing Key", "Get New Key"])
+        client_id = st.text_input("Enter Client ID", type="password")
+        api_key = st.text_input("Enter API Key", type="password")
         
-        with auth_tab1:
-            api_key = st.text_input("Enter API Key", type="password")
-            if st.button("Login"):
-                if validate_api_key(api_key):
-                    st.session_state.api_key = api_key
-                    st.session_state.is_authenticated = True
-                    st.success("Successfully authenticated!")
-                    st.rerun()
-                else:
-                    st.error("Invalid API key")
-        
-        with auth_tab2:
-            client_id = st.text_input("Enter Client ID")
-            if st.button("Create New Key"):
-                if client_id:
-                    result, error = create_api_key(client_id)
-                    if error:
-                        st.error(error)
-                    else:
-                        st.success("API Key created successfully!")
-                        st.code(result["key"], language=None)
-                        st.info("Please copy this key and keep it safe. You won't be able to see it again!")
-                else:
-                    st.warning("Please enter a Client ID")
+        if st.button("Login"):
+            if api_key == API_KEY and client_id == API_CLIENT_ID:
+                st.session_state.api_key = api_key
+                st.session_state.client_id = client_id
+                st.session_state.is_authenticated = True
+                st.success("Successfully authenticated!")
+                st.rerun()
+            else:
+                st.error("Invalid credentials")
     
     else:
         st.success("Authenticated ✅")
@@ -130,7 +105,7 @@ with st.sidebar:
     
     st.divider()
     
-    # Navigation menu (only shown when authenticated)
+     # Navigation menu (only shown when authenticated)
     if st.session_state.is_authenticated:
         st.title("📍 Navigation")
         nav_col1, nav_col2 = st.columns(2)
@@ -159,18 +134,11 @@ with st.sidebar:
     **Features:**
     - Secure API key authentication
     - Chat with the AI about indexed content
-    - Add new URLs to knowledge base
     - View sources for responses
     - Persistent chat history during session
-    
-    **Usage:**
-    1. Authenticate using your API key
-    2. Navigate between Chat and URL submission
-    3. Chat or submit URLs as needed
     """)
     
-    # Clear chat button (only shown on chat page)
-    if st.session_state.is_authenticated and st.session_state.current_page == "chat":
+    if st.session_state.is_authenticated:
         if st.button("Clear Chat"):
             st.session_state.messages = []
             st.rerun()
@@ -209,7 +177,8 @@ if st.session_state.is_authenticated:
                     response_data, error = get_chat_response(
                         prompt, 
                         chat_history,
-                        st.session_state.api_key
+                        st.session_state.api_key,
+                        st.session_state.client_id
                     )
                     
                     if error:
@@ -245,7 +214,8 @@ if st.session_state.is_authenticated:
                         result, error = submit_url(
                             url, 
                             force_update,
-                            st.session_state.api_key
+                            st.session_state.api_key,
+                             st.session_state.client_id
                         )
                         if error:
                             st.error(error)
