@@ -135,6 +135,10 @@ Here's the HTML code to add to your Readme.md file:
 <p>Streamlit UI: <a href="http://13.233.253.251:8501/">http://13.233.253.251:8501/</a></p>
 <p>This setup provides flexibility to run and access the API locally or from the cloud, depending on your development and production needs.</p>
 
+<h2>UI Guide</h2>
+Login using 
 ![Image Alt Text](Docs/Images/Img1.PNG)
+
 ![Image Alt Text](Docs/Images/Img2.PNG)
+
 ![Image Alt Text](Docs/Images/Img3.PNG)
