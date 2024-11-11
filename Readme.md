@@ -71,23 +71,6 @@ response = requests.get(API_URL + endpoint, headers=headers)
 print(response.json())
 </code></pre>
 
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project README</title>
-    <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; }
-        h1 { color: #333; }
-        pre { background-color: #f4f4f4; padding: 15px; border-radius: 5px; border: 1px solid #ddd; }
-        code { font-family: Consolas, "Courier New", monospace; }
-    </style>
-</head>
-<body>
-
 <h3>CURL Commands Example</h3>
 
 <pre><code># CHAT Endpoint
